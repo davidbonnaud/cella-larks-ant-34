@@ -1,0 +1,8 @@
+body {
+  text-align: center;
+  font-family: sans-serif;
+  background-color: lightgrey;
+}
+canvas {
+  background-color: black;
+}
