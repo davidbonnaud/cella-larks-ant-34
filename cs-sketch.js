@@ -4,7 +4,7 @@
 // Make global g_canvas JS 'object': a key-value 'dictionary'.
 var g_canvas = { cell_size:15, wid:60, hgt:40 }; // JS Global var, w canvas size info.
 var g_frame_cnt = 0; // Setup a P5 display-frame counter, to do anim
-var g_frame_mod = 24; // Update ever 'mod' frames.
+var g_frame_mod = 10; // Update ever 'mod' frames.
 var g_stop = 0; // Go by default.
 
 function setup() // P5 Setup Fcn
@@ -17,33 +17,92 @@ function setup() // P5 Setup Fcn
 }
 
 class Ant {
-  constructor(dir, x, y, color, box){
-    this.dir = dir;
+  constructor(x, y, color, box){
+    this.dir = 0;
     this.x = x;
     this.y = y;
     this.color = color;
     this.box = box;
     this.mode = "LRMode";
     this.counter = 0;
+    this.lr = "straight";
   }
   
-  move(dir = 0) {
+  move(lr) {
       let dx = 0;
       let dy = 0;
-      switch (dir) { // Convert dir to x,y deltas: dir = clock w 0=Up,2=Rt,4=Dn,6=Left.
-      case 0 : {         dy = -1; break; } //blue left in lr mode
-      case 1 : { dx = 1; dy = -1; break; } //yellow switch to set-count mode
-      case 2 : { dx = 1; break; }          //red right in lr mode
-      case 3 : { dx = 1; dy = 1; break; }  //black left in lr mode
+
+      //sets the movement direction to the current facing dir
+      //switch (this.dir) { // Convert dir to x,y deltas: dir = clock w 0=Up,2=Rt,4=Dn,6=Left.
+      //case 0 : { dx = 0;  dy = -1; break; } //up
+      //case 1 : { dx = 0;  dy = 1;  break; } //down
+      //case 2 : { dx = -1; dy = 0;  break; } //left        
+      //case 3 : { dx = 1;  dy = 0;  break; } //right
+      //}
+
+      //if the current direction is x and the change should be y set dx and dy to appropriate vals, update current dir to reflect new dir
+
+      if(this.dir === 0){
+        if(lr === "left"){
+          dx = -1;
+          dy = 0;
+          this.dir = 2;
+        } else if(lr === "right"){
+          dx = 1;
+          dy = 0;
+          this.dir = 3;
+        } else if(lr === "straight"){
+          dx = 0;
+          dy = -1;
+        }
+      } else if(this.dir === 1){
+        if(lr === "left"){
+          dx = 1;
+          dy = 0;
+          this.dir = 3;
+        } else if(lr === "right"){
+          dx = 2;
+          dy = 0;
+          this.dir = 2;
+        } else if(lr === "straight"){
+          dx = 0;
+          dy = 1;
+        }
+      } else if(this.dir === 2){
+        if(lr === "left"){
+          dx = 0;
+          dy = 1;
+          this.dir = 1;
+        } else if(lr === "right"){
+          dx = 0;
+          dy = -1;
+          this.dir = 0;
+        } else if(lr === "straight"){
+          dx = -1;
+          dy = 0;
+        }
+      } else if(this.dir === 3){
+        if(lr === "left"){
+          dx = 0;
+          dy = -1;
+          this.dir = 0;
+        } else if(lr === "right"){
+          dx = 0;
+          dy = 1;
+          this.dir = 1;
+        } else if(lr === "straight"){
+          dx = 1;
+          dy = 0;
+        }
       }
+
       let x = (dx + this.x + this.box.wid) % this.box.wid; // Move-x.  Ensure positive b4 mod.
       let y = (dy + this.y + this.box.hgt) % this.box.hgt; // Ditto y.
-      let color = "FFFF00";
+      //let color = "FFFF00";
       this.x = x; // Update bot x.
       this.y = y;
-      this.dir = dir;
-      this.color = color;
-      console.log( "bot x,y,dir,clr = " + x + "," + y + "," + dir + "," +  color );
+      //this.color = color;
+      //console.log( "bot x,y,dir,clr = " + x + "," + y + "," + this.dir + "," +  color );
   }
   
   draw() {
@@ -57,34 +116,41 @@ class Ant {
       let pix = acolors[ 0 ] + acolors[ 1 ] + acolors[ 2 ];
       //console.log(pix);
       //console.log( "acolors,pix = " + acolors + ", " + pix );
-      if(this.counter > 0){
-        this.color = "0000FF";
-        this.counter--;
-      } else if(pix === 0 || acolors[2] === 255){ //instruct ant to turn left if square is black or blue during lr mode
-        console.log("left");
-      } else if(acolors[0] === 255 && acolors[1] === 0){ //instruct ant to turn right if current square is red during lr mode and color square black
-        this.color = "000000";
-        console.log("right");
-      } else if(acolors[0] === 255 && acolors[1] === 255){ //instruct ant to switch mode to set count and color square red, start the counter of blue squares to be placed
-        this.color = "FF0000";
-        this.counter = 4;
-        console.log("switch mode to set count");
-      }
+     
     
       // Fill 'color': its a keystring, or a hexstring like "#5F", etc.  See P5 docs.
       fill( "#" + this.color );
-      // (*) Here is how to detect what's at the pixel location.  See P5 docs for fancier...
-      //if (0 != pix) { fill( 0 ); stroke( 0 ); } // Turn off color of prior bot-visited cell.
-      //else { stroke( 'white' ); } // Else Bot visiting this cell, so color it.
-
       // Paint the cell.
       rect( x, y, big, big );
+      
+      if(this.counter > 0){
+        this.color = "0000FF";
+        this.move(this.lr);
+        this.counter--;
+      } else if(pix === 0 || acolors[2] === 255){ //instruct ant to turn left if square is black or blue during lr mode
+        this.color = "FFFF00";
+        this.lr = "left";
+        this.move(this.lr);
+      } else if(acolors[0] === 255 && acolors[1] === 0){ //instruct ant to turn right if current square is red during lr mode and color square black
+        this.color = "000000";
+        this.lr = "right";
+        this.move(this.lr);
+      } else if(acolors[0] === 255 && acolors[1] === 255){ //instruct ant to go straight and color square red, start the counter of blue squares to be placed
+        this.color = "FF0000";
+        fill( "#" + this.color );
+        // Paint the cell.
+        rect( x, y, big, big );
+        this.color = "0000FF";
+        this.lr = "straight";
+        this.move(this.lr);
+        this.counter = 5;
+      }
   }
   
 }
 
-var g_box = { t:1, hgt:47, l:1, wid:63 }; // Box in which ant can move.
-let ant = new Ant(1, 30, 20, 100, g_box);
+var g_box = { t:1, hgt:40, l:1, wid:60 }; // Box in which ant can move.
+let ant = new Ant(30, 20, "FFFF00", g_box);
 
 /******* Old Code *******
 var g_bot = { dir:3, x:30, y:20, color:100 }; // Dir is 0..7 clock, w 0 up.
@@ -140,11 +206,11 @@ function draw_bot( ) // Convert bot pox to grid pos & draw bot.
 
 function draw_update()  // Update our display.
 {
-  console.log( "g_frame_cnt = " + g_frame_cnt );
+  //console.log( "g_frame_cnt = " + g_frame_cnt );
     //move_bot( );
     //draw_bot( );
-  ant.move();
   ant.draw();
+  //ant.move();
 }
 
 function draw()  // P5 Frame Re-draw Fcn, Called for Every Frame.
