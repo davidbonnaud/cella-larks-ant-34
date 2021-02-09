@@ -16,8 +16,64 @@ function setup() // P5 Setup Fcn
     //draw_grid( 100, 50, 'white', 'yellow' );
 }
 
-var g_bot = { dir:3, x:20, y:20, color:100 }; // Dir is 0..7 clock, w 0 up.
-var g_box = { t:1, hgt:47, l:1, wid:63 }; // Box in which bot can move.
+class Ant {
+  constructor(dir, x, y, color, box){
+    this.dir = dir;
+    this.x = x;
+    this.y = y;
+    this.color = color;
+    this.box = box;
+    this.mode = "LRMode";
+  }
+  
+  move(dir = 1) {
+      let dx = 0;
+      let dy = 0;
+      switch (dir) { // Convert dir to x,y deltas: dir = clock w 0=Up,2=Rt,4=Dn,6=Left.
+      case 0 : {         dy = -1; break; } //blue left in lr mode
+      case 1 : { dx = 1; dy = -1; break; } //yellow switch to set-count mode
+      case 2 : { dx = 1; break; }          //red right in lr mode
+      case 3 : { dx = 1; dy = 1; break; }  //black left in lr mode
+      }
+      let x = (dx + this.x + this.box.wid) % this.box.wid; // Move-x.  Ensure positive b4 mod.
+      let y = (dy + this.y + this.box.hgt) % this.box.hgt; // Ditto y.
+      let color = "FF0000";
+      this.x = x; // Update bot x.
+      this.y = y;
+      this.dir = dir;
+      this.color = color;
+      console.log( "bot x,y,dir,clr = " + x + "," + y + "," + dir + "," +  color );
+  }
+  
+  draw() {
+      let sz = g_canvas.cell_size;
+      let sz2 = sz / 2;
+      let x = 1+ this.x*sz; // Set x one pixel inside the sz-by-sz cell.
+      let y = 1+ this.y*sz;
+      let big = sz -2; // Stay inside cell walls.
+      // Fill 'color': its a keystring, or a hexstring like "#5F", etc.  See P5 docs.
+      fill( "#" + this.color ); // Concat string, auto-convert the number to string.
+      //console.log( "x,y,big = " + x + "," + y + "," + big );
+      let acolors = get( x + sz2, y + sz2 ); // Get cell interior pixel color [RGBA] array.
+      let pix = acolors[ 0 ] + acolors[ 1 ] + acolors[ 2 ];
+      console.log( "acolors,pix = " + acolors + ", " + pix );
+
+      // (*) Here is how to detect what's at the pixel location.  See P5 docs for fancier...
+      if (0 != pix) { fill( 0 ); stroke( 0 ); } // Turn off color of prior bot-visited cell.
+      else { stroke( 'white' ); } // Else Bot visiting this cell, so color it.
+
+      // Paint the cell.
+      rect( x, y, big, big );
+  }
+  
+}
+
+var g_box = { t:1, hgt:47, l:1, wid:63 }; // Box in which ant can move.
+let ant = new Ant(1, 30, 20, 100, g_box);
+
+/******* Old Code *******
+var g_bot = { dir:3, x:30, y:20, color:100 }; // Dir is 0..7 clock, w 0 up.
+
 
 function move_bot( )
 {
@@ -41,7 +97,7 @@ function move_bot( )
     g_bot.y = y;
     g_bot.dir = dir;
     g_bot.color = color;
-    //console.log( "bot x,y,dir,clr = " + x + "," + y + "," + dir + "," +  color );
+    console.log( "bot x,y,dir,clr = " + x + "," + y + "," + dir + "," +  color );
 }
 
 function draw_bot( ) // Convert bot pox to grid pos & draw bot.
@@ -65,12 +121,15 @@ function draw_bot( ) // Convert bot pox to grid pos & draw bot.
     // Paint the cell.
     rect( x, y, big, big );
 }
+*/
 
 function draw_update()  // Update our display.
 {
-    //console.log( "g_frame_cnt = " + g_frame_cnt );
-    move_bot( );
-    draw_bot( );
+  console.log( "g_frame_cnt = " + g_frame_cnt );
+    //move_bot( );
+    //draw_bot( );
+  ant.move();
+  ant.draw();
 }
 
 function draw()  // P5 Frame Re-draw Fcn, Called for Every Frame.
