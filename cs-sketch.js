@@ -24,9 +24,10 @@ class Ant {
     this.color = color;
     this.box = box;
     this.mode = "LRMode";
+    this.counter = 0;
   }
   
-  move(dir = 1) {
+  move(dir = 0) {
       let dx = 0;
       let dy = 0;
       switch (dir) { // Convert dir to x,y deltas: dir = clock w 0=Up,2=Rt,4=Dn,6=Left.
@@ -37,7 +38,7 @@ class Ant {
       }
       let x = (dx + this.x + this.box.wid) % this.box.wid; // Move-x.  Ensure positive b4 mod.
       let y = (dy + this.y + this.box.hgt) % this.box.hgt; // Ditto y.
-      let color = "FF0000";
+      let color = "FFFF00";
       this.x = x; // Update bot x.
       this.y = y;
       this.dir = dir;
@@ -51,16 +52,30 @@ class Ant {
       let x = 1+ this.x*sz; // Set x one pixel inside the sz-by-sz cell.
       let y = 1+ this.y*sz;
       let big = sz -2; // Stay inside cell walls.
-      // Fill 'color': its a keystring, or a hexstring like "#5F", etc.  See P5 docs.
-      fill( "#" + this.color ); // Concat string, auto-convert the number to string.
-      //console.log( "x,y,big = " + x + "," + y + "," + big );
       let acolors = get( x + sz2, y + sz2 ); // Get cell interior pixel color [RGBA] array.
+      //console.log(acolors);
       let pix = acolors[ 0 ] + acolors[ 1 ] + acolors[ 2 ];
-      console.log( "acolors,pix = " + acolors + ", " + pix );
-
+      //console.log(pix);
+      //console.log( "acolors,pix = " + acolors + ", " + pix );
+      if(this.counter > 0){
+        this.color = "0000FF";
+        this.counter--;
+      } else if(pix === 0 || acolors[2] === 255){ //instruct ant to turn left if square is black or blue during lr mode
+        console.log("left");
+      } else if(acolors[0] === 255 && acolors[1] === 0){ //instruct ant to turn right if current square is red during lr mode and color square black
+        this.color = "000000";
+        console.log("right");
+      } else if(acolors[0] === 255 && acolors[1] === 255){ //instruct ant to switch mode to set count and color square red, start the counter of blue squares to be placed
+        this.color = "FF0000";
+        this.counter = 4;
+        console.log("switch mode to set count");
+      }
+    
+      // Fill 'color': its a keystring, or a hexstring like "#5F", etc.  See P5 docs.
+      fill( "#" + this.color );
       // (*) Here is how to detect what's at the pixel location.  See P5 docs for fancier...
-      if (0 != pix) { fill( 0 ); stroke( 0 ); } // Turn off color of prior bot-visited cell.
-      else { stroke( 'white' ); } // Else Bot visiting this cell, so color it.
+      //if (0 != pix) { fill( 0 ); stroke( 0 ); } // Turn off color of prior bot-visited cell.
+      //else { stroke( 'white' ); } // Else Bot visiting this cell, so color it.
 
       // Paint the cell.
       rect( x, y, big, big );
@@ -146,7 +161,7 @@ function keyPressed( )
     g_stop = ! g_stop;
 }
 
-function mousePressed( )
+/*function mousePressed( )
 {
     let x = mouseX;
     let y = mouseY;
@@ -164,4 +179,4 @@ function mousePressed( )
     g_bot.y %= g_box.hgt;
     //console.log( "bot x,y = " + g_bot.x + "," + g_bot.y );
     draw_bot( );
-}
+}*/
