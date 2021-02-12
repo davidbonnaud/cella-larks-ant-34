@@ -13,9 +13,9 @@ function setup() // P5 Setup Fcn
     let width = sz * g_canvas.wid;  // Our 'canvas' uses cells of given size, not 1x1 pixels.
     let height = sz * g_canvas.hgt;
     createCanvas( width, height );  // Make a P5 canvas.
-    //draw_grid( 100, 50, 'white', 'yellow' );
 }
 
+// create an ant class that acts as the bot navigating the squares and checking the colors
 class Ant {
   constructor(x, y, color, box){
     this.dir = 0;
@@ -28,21 +28,13 @@ class Ant {
     this.lr = "straight";
   }
   
-  move(lr) {
+  move(lr) { //all purpose move function taking in the direction of the ant
       let dx = 0;
       let dy = 0;
 
-      //sets the movement direction to the current facing dir
-      //switch (this.dir) { // Convert dir to x,y deltas: dir = clock w 0=Up,2=Rt,4=Dn,6=Left.
-      //case 0 : { dx = 0;  dy = -1; break; } //up
-      //case 1 : { dx = 0;  dy = 1;  break; } //down
-      //case 2 : { dx = -1; dy = 0;  break; } //left        
-      //case 3 : { dx = 1;  dy = 0;  break; } //right
-      //}
-
-      //if the current direction is x and the change should be y set dx and dy to appropriate vals, update current dir to reflect new dir
-
-      if(this.dir === 0){
+      //sequence of checks to turn the ant left or right or continue straight depending on 
+      //the current facing direction
+      if(this.dir === 0){ //north direction changes
         if(lr === "left"){
           dx = -1;
           dy = 0;
@@ -55,7 +47,7 @@ class Ant {
           dx = 0;
           dy = -1;
         }
-      } else if(this.dir === 1){
+      } else if(this.dir === 1){ //south direction changes
         if(lr === "left"){
           dx = 1;
           dy = 0;
@@ -68,7 +60,7 @@ class Ant {
           dx = 0;
           dy = 1;
         }
-      } else if(this.dir === 2){
+      } else if(this.dir === 2){ //west direction changes
         if(lr === "left"){
           dx = 0;
           dy = 1;
@@ -81,7 +73,7 @@ class Ant {
           dx = -1;
           dy = 0;
         }
-      } else if(this.dir === 3){
+      } else if(this.dir === 3){ //east direction changes
         if(lr === "left"){
           dx = 0;
           dy = -1;
@@ -98,10 +90,10 @@ class Ant {
 
       let x = (dx + this.x + this.box.wid) % this.box.wid; // Move-x.  Ensure positive b4 mod.
       let y = (dy + this.y + this.box.hgt) % this.box.hgt; // Ditto y.
-      //let color = "FFFF00";
-      this.x = x; // Update bot x.
+
+      this.x = x;
       this.y = y;
-      //this.color = color;
+
       //console.log( "bot x,y,dir,clr = " + x + "," + y + "," + this.dir + "," +  color );
   }
   
@@ -123,15 +115,19 @@ class Ant {
       // Paint the cell.
       rect( x, y, big, big );
       
-      if(this.counter > 0){
+      //sequence of checks that see which color square the ant is currently on, and 
+      //change the behavior accordingly by calling the move function and passing the 
+      //current nose position, also changes current color so square is painted 
+      //the color it needs to be
+      if(this.counter > 0){ //if counter is active, paint squares blue and continue straight
         this.color = "0000FF";
         this.move(this.lr);
         this.counter--;
-      } else if(pix === 0 || acolors[2] === 255){ //instruct ant to turn left if square is black or blue during lr mode
+      } else if(pix === 0 || acolors[2] === 255){ //instruct ant to turn left if square is black or blue
         this.color = "FFFF00";
         this.lr = "left";
         this.move(this.lr);
-      } else if(acolors[0] === 255 && acolors[1] === 0){ //instruct ant to turn right if current square is red during lr mode and color square black
+      } else if(acolors[0] === 255 && acolors[1] === 0){ //instruct ant to turn right if current square is red and color square black
         this.color = "000000";
         this.lr = "right";
         this.move(this.lr);
@@ -150,67 +146,13 @@ class Ant {
 }
 
 var g_box = { t:1, hgt:40, l:1, wid:60 }; // Box in which ant can move.
-let ant = new Ant(30, 20, "FFFF00", g_box);
-
-/******* Old Code *******
-var g_bot = { dir:3, x:30, y:20, color:100 }; // Dir is 0..7 clock, w 0 up.
-
-
-function move_bot( )
-{
-    let dir = (round (8 * random( ))) // Change direction at random; brownian motion.
-    let dx = 0;
-    let dy = 0;
-    switch (dir) { // Convert dir to x,y deltas: dir = clock w 0=Up,2=Rt,4=Dn,6=Left.
-    case 0 : {         dy = -1; break; }
-    case 1 : { dx = 1; dy = -1; break; }
-    case 2 : { dx = 1; break; }
-    case 3 : { dx = 1; dy = 1; break; }
-    case 4 : {         dy = 1; break; }
-    case 5 : { dx = -1; dy = 1; break; }
-    case 6 : { dx = -1; break; }
-    case 7 : { dx = -1; dy = -1; break; }
-    }
-    let x = (dx + g_bot.x + g_box.wid) % g_box.wid; // Move-x.  Ensure positive b4 mod.
-    let y = (dy + g_bot.y + g_box.hgt) % g_box.hgt; // Ditto y.
-    let color =  100 + (1 + g_bot.color) % 156; // Incr color in nice range.
-    g_bot.x = x; // Update bot x.
-    g_bot.y = y;
-    g_bot.dir = dir;
-    g_bot.color = color;
-    console.log( "bot x,y,dir,clr = " + x + "," + y + "," + dir + "," +  color );
-}
-
-function draw_bot( ) // Convert bot pox to grid pos & draw bot.
-{
-    let sz = g_canvas.cell_size;
-    let sz2 = sz / 2;
-    let x = 1+ g_bot.x*sz; // Set x one pixel inside the sz-by-sz cell.
-    let y = 1+ g_bot.y*sz;
-    let big = sz -2; // Stay inside cell walls.
-    // Fill 'color': its a keystring, or a hexstring like "#5F", etc.  See P5 docs.
-    fill( "#" + g_bot.color ); // Concat string, auto-convert the number to string.
-    //console.log( "x,y,big = " + x + "," + y + "," + big );
-    let acolors = get( x + sz2, y + sz2 ); // Get cell interior pixel color [RGBA] array.
-    let pix = acolors[ 0 ] + acolors[ 1 ] + acolors[ 2 ];
-    //console.log( "acolors,pix = " + acolors + ", " + pix );
-
-    // (*) Here is how to detect what's at the pixel location.  See P5 docs for fancier...
-    if (0 != pix) { fill( 0 ); stroke( 0 ); } // Turn off color of prior bot-visited cell.
-    else { stroke( 'white' ); } // Else Bot visiting this cell, so color it.
-
-    // Paint the cell.
-    rect( x, y, big, big );
-}
-*/
+let ant = new Ant(30, 20, "FFFF00", g_box); // Create the Ant object
 
 function draw_update()  // Update our display.
 {
   //console.log( "g_frame_cnt = " + g_frame_cnt );
-    //move_bot( );
-    //draw_bot( );
+  //start the ant and render the square changes
   ant.draw();
-  //ant.move();
 }
 
 function draw()  // P5 Frame Re-draw Fcn, Called for Every Frame.

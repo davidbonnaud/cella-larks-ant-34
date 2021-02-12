@@ -1,12 +1,11 @@
-Readme for js-p5-example
-Time-stamp: <2020-09-02 14:11:19 Chuck Siska>
-------------------------------------------------------------
-
 Intro
 
-  This example draws a grid and runs an invisible bot from cell to cell
-  on the grid changing its colors.  You can stop/restart the bot with
-  any keypress.  You can move the bot to any cell with a mouse-click.
+  This project runs the algorithm of a Larks Ant where if the ant sees
+  a black or blue square, it turns left and colors the square yellow, if the ant
+  sees a red square, turn the square black and turn right, and if 
+  it sees a yellow square, turn the square red and start a countdown where 
+  the ant continues in a straight line for 6 blue tiles ignoring the tiles it 
+  passes over, it then returns to the normal state and continues.
 
   This is an example project using HTML, Javascript (JS), and P5.js
   which is a JS-adapted version of the Processing Language.  CF HTML and
@@ -20,22 +19,17 @@ Zip Contents
 
   File readme.txt.  This file.
 
-  File pix-js-p5-example-1.JPG.  A snapshot of the example webpage.
+  File .  A snapshot of the project webpage.
 
-  File pix-js-p5-example2-F12-Console.JPG  A webpage + F12 Console.
-    Shows entering some global var names to see their current values.
-
-  File index-js-p5-example.html. Drag and drop this into a browser to
-    run the example.
-    Click to set new loc for drunk-bot (via mousePressed).
-    Hit (almost) any key to toggle bot on or off (via keyPressed).
+  File indexe.html. Drag and drop this into a browser to
+    run the project.
 
   File p5.js. This is the P5 package.  It is loaded inside the html.
 
   File cs-sketch.js; This contains several P5 user-defined linkage functions
-   (setup, draw, keyPressed, and mousePressed), as well as example
-    support functions.  P5's setup() is run once before page display.
-    P5's draw() is run once per display frame, so you can do animation.
+  (setup, draw), as well as example support functions.  P5's setup() is run 
+  once before page display. P5's draw() is run once per display frame, 
+  so you can do animation.
 
   File assets/styles.css.  This is an extra-small example of controlling
     webpage styling.  // Loaded inside the html.
@@ -49,27 +43,23 @@ Installation & Running
 
   1. Extract the .zip file into a folder.
 
-  2. Drag the index HTML file, index-js-p5-example.html, into a browser
+  2. Drag the index HTML file, index.html, into a browser
     window.  The example P5 program should start immediately.  You
-    should see a 640x480 grid (white lines on black background) with
-    row/column headers and some of the grid cells colored.  See the
-    picture pix-js-p5-example-1.JPG.
+    should see a black box that immediately begins to start having 
+    colored squares, showing the positions the ant visited and the 
+    actions it took.
 
 Known Bugs
 
-  o- Bot cell drawing over-writes a pixels-worth of the cell's grid lines.
+  o- Ant does not start by going upward an additional square visually,
+     but checking the console reveals it does in fact do that.
 
 Warnings
 
-  o- Clicking outside the grid wraps the mouse x.y back into the grid --
-     maybe at a weird-looking spot.  Enjoy.
-
-  o- Testing was light.  Didn't try all key or mouse combos.
 
 Testing
 
-  o- Following installation instruction, above, watched it run, and
-  tryed a few keypresses and mouse clicks.  Looks okay to ship.
+  o- Following installation instruction, above, watch it run.
 
 Credits
 
