@@ -1,7 +1,5 @@
 Intro
   
-  <img src="cella-larks-ant-34-screencap.png" alt="Cella Larks Ant Screencap">
-  
   This project runs the algorithm of a Larks Ant where if the ant sees
   a black or blue square, it turns left and colors the square yellow, if the ant
   sees a red square, turn the square black and turn right, and if 
