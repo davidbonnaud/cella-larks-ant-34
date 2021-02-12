@@ -1,4 +1,4 @@
-Intro
+##Intro
 
   This project runs the algorithm of a Larks Ant where if the ant sees
   a black or blue square, it turns left and colors the square yellow, if the ant
